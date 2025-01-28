@@ -1,8 +1,5 @@
-import React, { useRef, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React, { useState } from 'react'
 import './App.css'
-import { Toggle } from './components/ui/toggle'
 import { Menu } from 'lucide-react'
 import {
   DropdownMenu,
@@ -11,14 +8,21 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
-  DropdownMenuSubContent
+  DropdownMenuItem
 } from './components/ui/dropdown-menu'
 import { DropdownMenuShortcut } from './components/ui/dropdown-menu'
 import { Button } from './components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from './components/ui/alert-dialog'
+import Confetti from 'react-confetti'
+
 type Edge = {
   id: string
   money: number
@@ -32,16 +36,25 @@ const colorPalette2025 = [
   '#8B645A', // Mocha Mousse
   '#A3B5C9' // Serene Blues and Greens
 ]
-const mockEdges: Edge[] = [
-  { id: '20', money: 20000 },
-  { id: '50', money: 50000 },
-  { id: '30', money: 200000 },
-  { id: '100', money: 100000 },
-  { id: '500', money: 500000 },
-  { id: '10', money: 10000 }
+const familyData: Edge[] = [
+  { id: '1', money: 20000 },
+  { id: '2', money: 50000 },
+  { id: '3', money: 200000 },
+  { id: '4', money: 1000000 },
+  { id: '5', money: 500000 },
+  { id: '6', money: 100000 }
 ]
 
-const Header: React.FC = () => {
+const friendData: Edge[] = [
+  { id: '1', money: 20000 },
+  { id: '2', money: 10000 },
+  { id: '3', money: 5000 },
+  { id: '4', money: 30000 },
+  { id: '5', money: 50000 },
+  { id: '6', money: 0 }
+]
+
+const Header: React.FC<{ setMode: (f: boolean) => void }> = ({ setMode }) => {
   return (
     <div className="flex items-center justify-between w-full p-4 border-b">
       <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
@@ -62,11 +75,11 @@ const Header: React.FC = () => {
               Rút Quẻ Đầu Năm
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setMode(false)}>
               Vòng Quay Gia Đình
               <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setMode(true)}>
               Vòng Quay Bạn Bè
               <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
             </DropdownMenuItem>
@@ -80,36 +93,49 @@ const Header: React.FC = () => {
 const Edge: React.FC = () => {
   return <div className="h-">tEST</div>
 }
-const WheelPicker: React.FC = () => {
-  const [randomDegree, setRandomDegree] = useState(360)
-  const curDeg = useRef(360)
-  const length = mockEdges.length
+const WheelPicker: React.FC<{ data: Edge[] }> = ({ data }) => {
+  const [randomDegree, setRandomDegree] = useState(0)
+  // const isOpen = useRef(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const [moneyReceived, setMoneyReceived] = useState(0)
+  const length = data.length
   const degPerPart = 360 / length
 
-  const getScore = () => {
-    const index = 0
+  const getScore = (cur: number) => {
+    // const i = Math((cur % 360) / degPerPart) % length
+    const i =
+      (Math.ceil((((cur + 90) % 360) % 360) / degPerPart + 0.5) - 1 + length) %
+      length
+
+    setMoneyReceived(() => i)
+    console.log(i)
+    setIsOpen(() => true)
   }
   const startSpinAnimation = () => {
-    const luckyNumber = Math.floor(Math.random() * mockEdges.length) + 1
-    console.log(luckyNumber)
+    const luckyNumber = Math.floor(Math.random() * length)
+    let curdeg = 0
 
-    curDeg.current = curDeg.current + ((360 / length) * luckyNumber + 1440 * 3)
+    setRandomDegree(pre => {
+      curdeg = pre + (degPerPart * luckyNumber + 360 * 7)
+      return pre + (degPerPart * luckyNumber + 360 * 7 + 180)
+    })
     setTimeout(() => {
-      getScore()
+      getScore(curdeg)
     }, 7000)
   }
+
   return (
     // wrapper
-    <div className="relative">
+    <div className="relative overflow-hidden">
       {/* wheel */}
       <div
         className="relative h-[320px] w-[320px] bg-red-400 m-auto mt-7 rounded-full overflow-hidden"
         style={{
           transition: 'transform 7s',
-          transform: `rotate(${curDeg.current - 360 / mockEdges.length / 2}deg)`
+          transform: `rotate(${randomDegree - degPerPart / 2}deg)`
         }}
       >
-        {mockEdges.map((edge, idx) => {
+        {data.map((edge, idx) => {
           const color =
             colorPalette2025[
             Math.floor(Math.random() * colorPalette2025.length)
@@ -138,25 +164,47 @@ const WheelPicker: React.FC = () => {
           )
         })}
       </div>
-      <div className="absolute top-[38%] left-1/2 w-7 h-10 border-b-[35px] border-x-[15px] border-x-transparent rounded-full border-b-red-500 -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute top-[40%] left-1/2 w-7 h-10 border-b-[35px] border-x-[15px] border-x-transparent rounded-full border-b-red-500 -translate-x-1/2 -translate-y-1/2"></div>
       <Button
-        className="rounded-sm mt-6"
+        className="rounded-sm mt-12"
         variant="secondary"
         onClick={startSpinAnimation}
       >
         Quay
       </Button>
+      <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+        <AlertDialogContent className="overflow-hidden">
+          <Confetti tweenDuration={5000} />
+          <AlertDialogHeader>
+            <AlertDialogTitle>Horray</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn nhận được <br />
+              <h1 className="text-3xl font-semibold">
+                {data[moneyReceived].money.toLocaleString('it-IT', {
+                  style: 'currency',
+                  currency: 'VND'
+                })}
+              </h1>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  const [isFriendMode, setIsFriendMode] = useState(false)
+  const setMode = (isFriend: boolean) => {
+    setIsFriendMode(() => isFriend)
+  }
   return (
     <div className="bg-background/95 w-full h-full">
-      <Header />
-      <WheelPicker />
+      <Header setMode={setMode} />
+      <WheelPicker data={isFriendMode ? friendData : familyData} />
     </div>
   )
 }
