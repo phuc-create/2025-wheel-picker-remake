@@ -46,12 +46,23 @@ const familyData: Edge[] = [
 ]
 
 const friendData: Edge[] = [
-  { id: '1', money: 20000 },
+  { id: '1', money: 10000 },
   { id: '2', money: 10000 },
   { id: '3', money: 5000 },
-  { id: '4', money: 30000 },
+  { id: '4', money: 5000 },
   { id: '5', money: 50000 },
-  { id: '6', money: 0 }
+  { id: '5', money: 1000 },
+  { id: '6', money: 0 },
+  { id: '6', money: 10000 },
+  { id: '6', money: 5000 },
+  { id: '6', money: 5000 },
+  { id: '6', money: 10000 },
+  { id: '6', money: 10000 },
+  { id: '6', money: 5000 },
+  { id: '6', money: 5000 },
+  { id: '6', money: 1000 },
+  { id: '6', money: 1000 },
+  { id: '6', money: 1000 }
 ]
 
 const Header: React.FC<{ setMode: (f: boolean) => void }> = ({ setMode }) => {
@@ -166,7 +177,7 @@ const WheelPicker: React.FC<{ data: Edge[] }> = ({ data }) => {
       </div>
       <div className="absolute top-[40%] left-1/2 w-7 h-10 border-b-[35px] border-x-[15px] border-x-transparent rounded-full border-b-red-500 -translate-x-1/2 -translate-y-1/2"></div>
       <Button
-        className="rounded-sm mt-12"
+        className="rounded-sm mt-12 w-72 p-7 m-4"
         variant="secondary"
         onClick={startSpinAnimation}
       >
