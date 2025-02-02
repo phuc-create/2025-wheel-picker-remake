@@ -39,10 +39,12 @@ const colorPalette2025 = [
 const familyData: Edge[] = [
   { id: '1', money: 20000 },
   { id: '2', money: 50000 },
+  { id: '2', money: 2000000 },
   { id: '3', money: 200000 },
   { id: '4', money: 10000 },
   { id: '5', money: 500000 },
-  { id: '6', money: 100000 }
+  { id: '6', money: 100000 },
+  { id: '6', money: 1000000 }
 ]
 
 const friendData: Edge[] = [
